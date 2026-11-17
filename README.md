@@ -28,7 +28,7 @@ A localização (Distrito Federal) é definida na própria busca do feed, na URL
 
 ## Resultado
 
-![Mensagem no Telegram](imagens/mensagem-telegram.png)
+![Mensagem no Telegram](imagens/mensagem-telegram.jpg)
 
 ## Tecnologias
 
