@@ -1,0 +1,168 @@
+{
+  "name": "Resumo matinal de vagas de TI",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -432,
+        0
+      ],
+      "id": "52e71253-72f6-4abe-88d7-e4636fcc9db1",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\n\nconst linhas = $input.all()\n  .slice(0, 20)\n  .map(i => `• <a href=\"${esc(i.json.link)}\">${esc(i.json.title)}</a>`);\n\nreturn [{ json: { text: `<b>☀️ Vagas de TI de hoje</b>\\n\\n${linhas.join('\\n')}` } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        176,
+        0
+      ],
+      "id": "699b3ec1-3647-4b22-a1b8-6db58e96ebec",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "chatId": "SEU_CHAT_ID",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        0
+      ],
+      "id": "1fb41b32-bcf4-4b18-87c7-6c94e6f6c43c",
+      "name": "Send a text message",
+      "webhookId": "237ba6a7-8da5-4f78-8446-ed9f9807c88d",
+      "credentials": {
+        "telegramApi": {
+          "id": "xoGn9e1Y5r4PZbH7",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://news.google.com/rss/search?q=CIEE+vagas+estágio+tecnologia+Distrito+Federal&hl=pt-BR&gl=BR&ceid=BR:pt-419",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -208,
+        0
+      ],
+      "id": "37750b77-a8fd-4cd0-b4f8-1bbcb220b8d7",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "aec133f5-81ea-4554-a680-3cb9e0c9cd31",
+              "leftValue": "={{ (() => {\n  const t = (($json.title || '') + ' ' + ($json.contentSnippet || ''))\n    .toLowerCase()\n    .normalize('NFD').replace(/[\\u0300-\\u036f]/g, '');\n\n  return /desenvolvedor|developer|programador|analista|sistemas|\\bti\\b|tecnologia|software|python|javascript|dados|automacao|estagio/.test(t);\n})() }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        -16,
+        0
+      ],
+      "id": "b74dd6f3-de1d-4b6a-90c6-3bbca9e8dffb",
+      "name": "Filter"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "896268d6-7d44-4a6c-913d-abdbda6b6d61",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "id": "Fr6IKsc18IKdWj7D",
+  "tags": []
+}
